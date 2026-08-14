@@ -135,6 +135,19 @@ export default class AiQuotaExtension extends Extension {
 
         this._tooltip = new Tooltip();
 
+        // Hover is tracked here, on the (already reactive) panel button, rather
+        // than on each gauge — see the note in lib/gauge.js. Both handlers must
+        // propagate, or they would break the click they exist to protect.
+        this._motionId = this._indicator.connect('motion-event', (_actor, event) => {
+            const [x, y] = event.get_coords();
+            this._setHovered(this._hitTest(x, y));
+            return Clutter.EVENT_PROPAGATE;
+        });
+        this._leaveId = this._indicator.connect('leave-event', () => {
+            this._setHovered(null);
+            return Clutter.EVENT_PROPAGATE;
+        });
+
         this._menuOpenId = this._indicator.menu.connect('open-state-changed', (_menu, open) => {
             if (open) {
                 this._tooltip.hide();
@@ -196,6 +209,13 @@ export default class AiQuotaExtension extends Extension {
         if (this._menuOpenId) {
             this._indicator?.menu.disconnect(this._menuOpenId);
             this._menuOpenId = 0;
+        }
+
+        for (const id of ['_motionId', '_leaveId']) {
+            if (this[id]) {
+                this._indicator?.disconnect(this[id]);
+                this[id] = 0;
+            }
         }
 
         for (const item of this._items.values())
@@ -348,7 +368,6 @@ export default class AiQuotaExtension extends Extension {
             let item = this._items.get(quota.id);
             if (!item) {
                 item = new GaugeItem(quota.id);
-                item.connect('notify::hover', actor => this._onItemHover(actor));
                 item.connect('destroy', () => this._items.delete(quota.id));
                 this._items.set(quota.id, item);
             }
@@ -389,7 +408,6 @@ export default class AiQuotaExtension extends Extension {
         // and drop the hover state out from under the pointer.
         if (!this._placeholder) {
             this._placeholder = new GaugeItem('__placeholder__');
-            this._placeholder.connect('notify::hover', actor => this._onItemHover(actor));
             this._placeholder.connect('destroy', () => {
                 this._placeholder = null;
             });
@@ -404,14 +422,36 @@ export default class AiQuotaExtension extends Extension {
 
     // -------------------------------------------------------------- tooltip
 
-    _onItemHover(item) {
-        if (item.hover) {
-            this._hoveredItem = item;
+    /**
+     * Which gauge is under the pointer.
+     *
+     * Done by hit-testing rather than by making each gauge reactive: a reactive
+     * child consumes the button press that the panel button's ClickGesture needs
+     * in order to open the menu.
+     */
+    _hitTest(stageX, stageY) {
+        for (const child of this._panelBox?.get_children() ?? []) {
+            if (child.quotaId === undefined)
+                continue;   // group separator
+            const [x, y] = child.get_transformed_position();
+            const [width, height] = child.get_transformed_size();
+            if (stageX >= x && stageX < x + width &&
+                stageY >= y && stageY < y + height)
+                return child;
+        }
+        return null;
+    }
+
+    _setHovered(item) {
+        if (this._hoveredItem === item)
+            return;
+
+        this._hoveredItem = item;
+        if (item) {
             const content = this._tooltipContent(item);
             if (content)
                 this._tooltip.scheduleFor(item, content.title, content.lines);
-        } else if (this._hoveredItem === item) {
-            this._hoveredItem = null;
+        } else {
             this._tooltip.scheduleHide();
         }
         this._updateUiTick();
@@ -517,11 +557,7 @@ export default class AiQuotaExtension extends Extension {
         menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         const refresh = new PopupMenu.PopupMenuItem('Refresh now');
-        refresh.connect('activate', () => {
-            const started = this._poller?.refreshNow(true);
-            if (!started)
-                refresh.label.text = 'Refresh now';
-        });
+        refresh.connect('activate', () => this._poller?.refreshNow(true));
         menu.addMenuItem(refresh);
 
         const settings = new PopupMenu.PopupMenuItem('Settings');
