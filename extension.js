@@ -17,8 +17,8 @@ import {
     formatAbsolute, formatAge, formatDuration, formatPercent, severityFor,
 } from './lib/format.js';
 
-const CACHE_SUBDIR = 'aiquota';
-const CACHE_FILE = 'state.json';
+const STATE_SUBDIR = 'aiquota';
+const STATE_FILE = 'state.json';
 const MENU_BAR_WIDTH = 200;   // logical px
 const UI_TICK_MS = 10000;     // countdown refresh while the menu/tooltip is up
 
@@ -152,9 +152,19 @@ export default class AiQuotaExtension extends Extension {
             getIntervalSeconds: () => this._settings.get_int('poll-interval'),
             getEnabledIds: () => this._settings.get_strv('providers-enabled'),
             onUpdate: snapshot => this._onSnapshot(snapshot),
-            cachePath: GLib.build_filenamev([
-                GLib.get_user_cache_dir(), CACHE_SUBDIR, CACHE_FILE,
+            // State, not cache. The XDG spec says cached data may be deleted at
+            // any time without loss of function — but this file records which
+            // quotas exist, and losing it makes a zero-usage gauge vanish from
+            // the panel until that product is next used. That is a loss of
+            // function, so it belongs in XDG_STATE_HOME.
+            statePath: GLib.build_filenamev([
+                GLib.get_user_state_dir(), STATE_SUBDIR, STATE_FILE,
             ]),
+            legacyStatePaths: [
+                GLib.build_filenamev([
+                    GLib.get_user_cache_dir(), STATE_SUBDIR, STATE_FILE,
+                ]),
+            ],
         });
 
         this._settingsChangedId = this._settings.connect('changed', (_s, key) => {

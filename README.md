@@ -116,7 +116,7 @@ credential file, so the moment the vendor's CLI refreshes it, polling resumes.
 The CLI's own refresh becomes the trigger, which is both safer and more
 responsive than a timer.
 
-Tokens are never logged and never written to the cache file.
+Tokens are never logged and never written to the state file.
 
 ## Reading the gauges
 
@@ -143,6 +143,12 @@ So a quota that was reported recently but is missing from the current reading is
 carried forward at 0% (`lib/continuity.js`) — absence in these payloads means
 "nothing used". It is retired after a full window of absence, which is also what
 correctly drops a limit type the vendor has genuinely removed.
+
+This is why the roster of seen quotas lives in `$XDG_STATE_HOME` and not
+`$XDG_CACHE_HOME`. Cached data may be deleted at any time without loss of
+function; this cannot. Delete it and a zero-usage gauge disappears from the panel
+until that product is next used. State written by an earlier version under
+`$XDG_CACHE_HOME` is migrated automatically on first run.
 
 ## Settings
 
@@ -181,7 +187,7 @@ extension.js          panel button, gauge box, menu, wiring
 prefs.js              Adw preferences
 lib/gaugepaint.js     the Cairo drawing — no St, so it can render headlessly
 lib/gauge.js          St widgets wrapping the above
-lib/poller.js         scheduling, backoff, file monitors, cache
+lib/poller.js         scheduling, backoff, file monitors, persisted state
 lib/continuity.js     carrying vanished quotas across resets
 lib/tooltip.js        hover tooltip
 lib/notify.js         threshold notifications
@@ -197,8 +203,8 @@ normalised shape documented in `providers/index.js`, and registering it there.
 ## Privacy
 
 Two HTTPS GETs to the vendors you already authenticate with. No third party, no
-telemetry, no analytics. The cache under `$XDG_CACHE_HOME/aiquota/state.json`
-holds quota readings only, mode 0600.
+telemetry, no analytics. The state file at `$XDG_STATE_HOME/aiquota/state.json`
+(usually `~/.local/state/`) holds quota readings only, mode 0600.
 
 ## Licence
 
