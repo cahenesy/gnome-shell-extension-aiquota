@@ -372,6 +372,12 @@ export default class AiQuotaExtension extends Extension {
                 this._items.set(quota.id, item);
             }
 
+            // Parent before styling. update() resolves the theme node to pick
+            // up the foreground colour, and St warns loudly on every call for
+            // an actor that is not yet in the stage — which, since _render()
+            // unparents everything up front, was every gauge on every poll.
+            this._panelBox.add_child(item);
+
             item.update(quota, {
                 glyph: group.provider.glyph,
                 state: group.state,
@@ -379,8 +385,6 @@ export default class AiQuotaExtension extends Extension {
                 showTag,
                 gaugeWidth,
             });
-
-            this._panelBox.add_child(item);
         }
 
         // Drop gauges for quotas that no longer exist.
