@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.aiquota"
+          path="/org/gnome/shell/extensions/aiquota/">
+
+    <key name="poll-interval" type="i">
+      <default>300</default>
+      <range min="180" max="3600"/>
+      <summary>Seconds between quota refreshes</summary>
+      <description>Floor is 180s. Claude Code itself caches for 5 minutes, and polling
+      faster than that gains nothing while risking rate-limit throttling.</description>
+    </key>
+
+    <key name="providers-enabled" type="as">
+      <default>['claude','grok','codex']</default>
+      <summary>Providers to poll</summary>
+    </key>
+
+    <key name="hidden-quotas" type="as">
+      <default>[]</default>
+      <summary>Quota ids explicitly hidden from the panel</summary>
+    </key>
+
+    <key name="auto-hide-inactive" type="b">
+      <default>true</default>
+      <summary>Hide quotas that are inactive, zero and have no reset scheduled</summary>
+    </key>
+
+    <key name="show-window-labels" type="b">
+      <default>false</default>
+      <summary>Show a short window tag (5h, wk) next to each gauge</summary>
+    </key>
+
+    <key name="show-pool-totals" type="b">
+      <default>false</default>
+      <summary>Show combined pool totals as their own gauges</summary>
+      <description>Some providers report both a shared pool and its per-product
+      breakdown — Grok's Build and Chat gauges already sum to its Credits pool.
+      Off by default to avoid a redundant gauge; the pool is always in the menu.</description>
+    </key>
+
+    <key name="warn-threshold" type="i">
+      <default>75</default>
+      <range min="1" max="100"/>
+      <summary>Percentage at which a quota turns amber</summary>
+    </key>
+
+    <key name="critical-threshold" type="i">
+      <default>90</default>
+      <range min="1" max="100"/>
+      <summary>Percentage at which a quota turns red</summary>
+    </key>
+
+    <key name="notifications-enabled" type="b">
+      <default>true</default>
+      <summary>Send a desktop notification when a quota crosses a threshold</summary>
+    </key>
+
+    <key name="color-normal" type="s">
+      <default>'#33d17a'</default>
+      <summary>Gauge fill colour below the warning threshold</summary>
+    </key>
+
+    <key name="color-warn" type="s">
+      <default>'#f6b73c'</default>
+      <summary>Gauge fill colour at or above the warning threshold</summary>
+    </key>
+
+    <key name="color-critical" type="s">
+      <default>'#e01b24'</default>
+      <summary>Gauge fill colour at or above the critical threshold</summary>
+    </key>
+
+    <key name="gauge-width" type="i">
+      <default>13</default>
+      <range min="8" max="28"/>
+      <summary>Gauge width in logical pixels</summary>
+    </key>
+
+  </schema>
+</schemalist>

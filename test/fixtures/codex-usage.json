@@ -1,0 +1,15 @@
+{
+  "_comment": "SYNTHETIC — no live Codex account was available. Shape follows stonega/codex-usage-indicator's reading of /backend-api/wham/usage. Replace with a real capture once Codex is installed.",
+  "plan_type": "plus",
+  "rate_limit": {
+    "primary_window": {"used_percent": 64.0, "window_minutes": 300, "reset_after_seconds": 4200},
+    "secondary_window": {"used_percent": 22.5, "window_minutes": 10080, "reset_at": 1786852800}
+  },
+  "code_review_rate_limit": {
+    "primary_window": {"used_percent": 0, "window_minutes": 10080, "reset_at": 1786852800}
+  },
+  "additional_rate_limits": [
+    {"limit_name": "cloud_tasks", "rate_limit": {"primary_window": {"used_percent": 11.0, "window_minutes": 10080, "reset_at": 1786852800}}}
+  ],
+  "credits": {"has_credits": true, "unlimited": false, "balance": 12.5}
+}

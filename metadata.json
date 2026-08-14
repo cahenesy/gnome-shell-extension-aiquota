@@ -1,0 +1,10 @@
+{
+  "uuid": "aiquota@heartofgoldventures.com",
+  "name": "AI Quota",
+  "description": "Fill-level gauges in the top bar showing how much of each AI coding quota you have consumed. Supports Claude Code, Grok Build and Codex. Hover a gauge for the percentage, time until reset and the exact reset time.",
+  "shell-version": ["50"],
+  "session-modes": ["user"],
+  "settings-schema": "org.gnome.shell.extensions.aiquota",
+  "url": "https://github.com/cahenesy/gnome-shell-extension-aiquota",
+  "version-name": "0.1.0"
+}

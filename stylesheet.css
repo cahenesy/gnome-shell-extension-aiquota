@@ -1,0 +1,106 @@
+/* AI Quota — panel gauges, hover tooltip, popup menu. */
+
+/* ------------------------------------------------------------------ panel */
+
+.aiquota-panel-box {
+  spacing: 4px;
+}
+
+.aiquota-item {
+  spacing: 2px;
+  padding: 0 1px;
+}
+
+.aiquota-gauge {
+  /* Colour is read off this node by the Cairo paint, so the theme's
+     foreground drives the outline in both light and dark. */
+  color: inherit;
+}
+
+.aiquota-glyph {
+  font-size: 9px;
+  font-weight: bold;
+  opacity: 0.7;
+  padding-bottom: 1px;
+}
+
+.aiquota-tag {
+  font-size: 8px;
+  opacity: 0.55;
+  padding-bottom: 1px;
+}
+
+.aiquota-group-separator {
+  width: 1px;
+  margin: 5px 3px;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------------------------------------------------------------- tooltip */
+
+.aiquota-tooltip {
+  background-color: rgba(28, 28, 30, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  padding: 9px 12px;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  max-width: 380px;
+}
+
+.aiquota-tooltip-title {
+  font-weight: bold;
+  padding-bottom: 4px;
+}
+
+.aiquota-tooltip-body {
+  spacing: 2px;
+}
+
+.aiquota-tooltip-line {
+  font-size: 0.92em;
+  opacity: 0.88;
+}
+
+/* ------------------------------------------------------------------- menu */
+
+.aiquota-menu-row {
+  padding: 7px 16px;
+  spacing: 0;
+}
+
+.aiquota-menu-label {
+  font-weight: bold;
+}
+
+.aiquota-menu-percent {
+  font-weight: bold;
+  padding-left: 12px;
+}
+
+.aiquota-menubar-track {
+  height: 6px;
+  margin: 5px 0 4px 0;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+.aiquota-menubar-fill {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.aiquota-menu-reset {
+  font-size: 0.85em;
+  opacity: 0.62;
+}
+
+.aiquota-menu-note {
+  font-size: 0.85em;
+  opacity: 0.55;
+}
+
+.aiquota-menu-note:hover,
+.aiquota-menu-note:focus {
+  background-color: transparent;
+}

@@ -1,0 +1,15 @@
+{
+  "_comment": "Synthetic: an on-demand cap has been set, and there is no productUsage breakdown. Proves the on-demand quota appears and that the pool is not marked optional when it is the only reading.",
+  "config": {
+    "currentPeriod": {
+      "type": "USAGE_PERIOD_TYPE_MONTHLY",
+      "start": "2026-08-01T00:00:00+00:00",
+      "end": "2026-09-01T00:00:00+00:00"
+    },
+    "creditUsagePercent": 96.0,
+    "onDemandCap": {"val": 5000},
+    "onDemandUsed": {"val": 1250},
+    "prepaidBalance": {"val": 0},
+    "billingPeriodEnd": "2026-09-01T00:00:00+00:00"
+  }
+}
