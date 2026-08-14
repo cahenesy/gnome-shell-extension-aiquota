@@ -151,10 +151,16 @@ export default class AiQuotaExtension extends Extension {
         this._menuOpenId = this._indicator.menu.connect('open-state-changed', (_menu, open) => {
             if (open) {
                 this._tooltip.hide();
-                this._rebuildMenu();
+                // No rebuild here: the menu is kept current while closed, and
+                // tearing its items down as it opens would churn actors under
+                // the pointer.
+                //
                 // Opening the menu is an explicit "tell me now" — honour it,
                 // subject to the per-provider minimum interval.
                 this._poller?.refreshNow(false);
+            } else {
+                // Fold in anything that arrived while it was open.
+                this._rebuildMenu();
             }
             this._updateUiTick();
         });
@@ -184,7 +190,7 @@ export default class AiQuotaExtension extends Extension {
             if (key === 'providers-enabled' || key === 'poll-interval')
                 this._poller.refreshNow(false);
             this._render();
-            if (this._indicator.menu.isOpen)
+            if (!this._indicator.menu.isOpen)
                 this._rebuildMenu();
         });
 
@@ -192,6 +198,12 @@ export default class AiQuotaExtension extends Extension {
 
         this._poller.start();
         this._render();
+
+        // The menu must be populated before the first click, not in response to
+        // it: PopupMenu.open() returns early when isEmpty(), so a menu that is
+        // only built from open-state-changed can never open — the signal that
+        // would fill it only fires once it is already non-empty.
+        this._rebuildMenu();
     }
 
     disable() {
@@ -268,7 +280,10 @@ export default class AiQuotaExtension extends Extension {
         }
 
         this._render();
-        if (this._indicator?.menu.isOpen)
+        // Kept current whether or not the menu is showing, so it is never empty
+        // when a click arrives. Skipped while open — the rows would be rebuilt
+        // under the pointer, and the countdown tick keeps them live anyway.
+        if (!this._indicator?.menu.isOpen)
             this._rebuildMenu();
     }
 
@@ -570,6 +585,13 @@ export default class AiQuotaExtension extends Extension {
             menu.close();
         });
         menu.addMenuItem(settings);
+
+        // Safety net for a failure mode that is otherwise completely silent:
+        // PopupMenu.open() returns early when isEmpty(), so an empty menu makes
+        // the whole indicator unclickable with no error anywhere. isEmpty()
+        // ignores separators, so provider headers alone would not save it.
+        if (menu.isEmpty())
+            console.warn('aiquota: menu built empty — the indicator will not open');
     }
 
     // ------------------------------------------------------- countdown tick
