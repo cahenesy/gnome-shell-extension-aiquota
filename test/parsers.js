@@ -10,6 +10,7 @@ import {
     parseHexColor, parseTimestamp, severityFor,
 } from '../lib/format.js';
 import {mergeContinuity} from '../lib/continuity.js';
+import {menuBarLayout} from '../lib/menubar.js';
 
 /**
  * Headless parser tests: `gjs -m test/parsers.js`
@@ -432,6 +433,36 @@ check('continuity: empty inputs are handled', () => {
     eq(mergeContinuity([], []).length, 0);
     eq(mergeContinuity(null, null).length, 0);
     eq(mergeContinuity(undefined, [{id: 'x', percent: 1, resetsAt: null}]).length, 1);
+});
+
+// -------------------------------------------------------------- menu bar
+
+// The popup uses St.Bin + ClutterBinLayout. A child without x_expand is
+// centred (x_align 0.5) and the fill was computed from a 200px constant
+// while the track expanded to the full row — grey gutters on both sides
+// at 100%, and the bar appearing to grow from the middle.
+
+check('menu bar fill grows from the left of the allocated track', () => {
+    const {fillX, fillWidth} = menuBarLayout(400, 50, 2);
+    eq(fillX, 0, 'origin');
+    eq(fillWidth, 200, 'half of the allocated width, not of a 200px constant');
+});
+
+check('100% fill occupies the entire allocated track', () => {
+    const {fillX, fillWidth} = menuBarLayout(347, 100, 2);
+    eq(fillX, 0, 'origin');
+    eq(fillWidth, 347, 'no leftover gutter');
+});
+
+check('0% and missing readings leave the track empty', () => {
+    eq(menuBarLayout(347, 0, 2), {fillX: 0, fillWidth: 0});
+    eq(menuBarLayout(347, null, 2), {fillX: 0, fillWidth: 0});
+    eq(menuBarLayout(0, 80, 2), {fillX: 0, fillWidth: 0});
+});
+
+check('a barely-used quota still gets a visible sliver, clamped to the track', () => {
+    eq(menuBarLayout(347, 0.1, 8).fillWidth, 8);
+    eq(menuBarLayout(4, 0.1, 8).fillWidth, 4);
 });
 
 // ----------------------------------------------------------- cross-provider

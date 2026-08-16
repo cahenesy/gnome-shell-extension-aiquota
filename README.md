@@ -28,8 +28,8 @@ binary.
   reset scheduled. They stay in the menu.
 - **Colour bands** at configurable warning and critical thresholds, escalated
   further if a provider reports its own severity.
-- **Desktop notifications** at each threshold, at most once per quota per window,
-  re-arming when the window resets.
+- **Desktop notifications** at each threshold, at most once until usage drops
+  back below it. A jittering reset time does not count as a new window.
 - **Never lies about staleness.** A cached or failed reading is visually distinct
   from a real one, and the tooltip says how old it is.
 - **No external binaries, no Node, no Python.** Pure GJS; HTTP goes through
@@ -162,6 +162,7 @@ colours · notification thresholds.
 
 ```bash
 gjs -m test/parsers.js                  # parser + continuity tests, no network
+gjs -m test/notify.js                   # threshold notification policy, no network
 gjs -m test/smoke.js                    # live: print what the panel would show
 gjs -m test/render.js out.png           # live: render the gauges to a PNG
 gjs -m test/render.js out.png --demo    # same, with illustrative numbers
@@ -190,7 +191,9 @@ lib/gauge.js          St widgets wrapping the above
 lib/poller.js         scheduling, backoff, file monitors, persisted state
 lib/continuity.js     carrying vanished quotas across resets
 lib/tooltip.js        hover tooltip
-lib/notify.js         threshold notifications
+lib/notify.js         threshold notifications (message tray)
+lib/notify-policy.js  rising-edge decisions and copy, shell-free
+lib/menubar.js        popup-menu bar geometry (left-to-right fill)
 lib/http.js           Soup 3 async GET
 lib/io.js             async file reads, log tailing, private writes
 lib/format.js         timestamp parsing, durations, severity bands
