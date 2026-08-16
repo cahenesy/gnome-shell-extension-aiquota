@@ -9,6 +9,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import {GaugeItem} from './lib/gauge.js';
+import {menuBarLayout} from './lib/menubar.js';
 import {Notifier} from './lib/notify.js';
 import {Poller} from './lib/poller.js';
 import {Tooltip} from './lib/tooltip.js';
@@ -19,7 +20,6 @@ import {
 
 const STATE_SUBDIR = 'aiquota';
 const STATE_FILE = 'state.json';
-const MENU_BAR_WIDTH = 200;   // logical px
 const UI_TICK_MS = 10000;     // countdown refresh while the menu/tooltip is up
 
 /** The stronger of the provider's own severity and our threshold bands. */
@@ -31,37 +31,52 @@ function resolveSeverity(quota, warn, critical) {
     return (rank[quota.severity] ?? 0) > (rank[local] ?? 0) ? quota.severity : local;
 }
 
-/** A horizontal fill bar for the popup menu. */
+/**
+ * A horizontal fill bar for the popup menu.
+ *
+ * Not an St.Bin: ClutterBinLayout centres any child that does not
+ * x_expand, and ignores that child's x_align. We allocate the fill
+ * ourselves so it grows left-to-right and 100% covers the track.
+ */
 const MenuBar = GObject.registerClass(
-class MenuBar extends St.Bin {
+class MenuBar extends St.Widget {
     _init() {
         super._init({
             style_class: 'aiquota-menubar-track',
             x_expand: true,
+            y_expand: false,
         });
         this._fill = new St.Widget({
             style_class: 'aiquota-menubar-fill',
-            x_align: Clutter.ActorAlign.START,
         });
-        this.set_child(this._fill);
+        this.add_child(this._fill);
         this._percent = 0;
     }
 
     setReading(percent, color) {
         this._percent = percent ?? 0;
-        const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-        const track = MENU_BAR_WIDTH * scale;
-        this.set_width(Math.round(track));
-        // A quota that is barely used still deserves a visible sliver, so the
-        // bar reads as "a little" rather than "nothing".
-        const width = this._percent > 0
-            ? Math.max(2 * scale, Math.round((track * this._percent) / 100))
-            : 0;
-        this._fill.set_width(width);
-        this._fill.visible = width > 0;
         // Inline rather than a class so the menu honours the same colours the
         // user picked for the panel gauges.
         this._fill.set_style(`background-color: ${color};`);
+        this.queue_relayout();
+    }
+
+    vfunc_allocate(box) {
+        this.set_allocation(box);
+
+        const content = this.get_theme_node().get_content_box(box);
+        const track = content.x2 - content.x1;
+        const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
+        const {fillX, fillWidth} = menuBarLayout(track, this._percent, 2 * scale);
+
+        this._fill.visible = fillWidth > 0;
+        const childBox = new Clutter.ActorBox({
+            x1: content.x1 + fillX,
+            y1: content.y1,
+            x2: content.x1 + fillX + fillWidth,
+            y2: content.y2,
+        });
+        this._fill.allocate(childBox);
     }
 });
 

@@ -238,8 +238,7 @@ export default class AiQuotaPreferences extends ExtensionPreferences {
         const group = new Adw.PreferencesGroup({
             title: 'Thresholds',
             description:
-                'Each threshold fires at most once per quota per window, and re-arms ' +
-                'when the window resets.',
+                'Each threshold fires once, then stays quiet until usage falls back below it.',
         });
 
         const enabled = new Adw.SwitchRow({
