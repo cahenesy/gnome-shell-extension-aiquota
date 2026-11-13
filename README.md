@@ -60,6 +60,15 @@ dbus-run-session -- gnome-shell --devkit
 
 (`--nested` was removed in GNOME 50; `--devkit` replaces it.)
 
+### Waybar (Hyprland, Sway)
+
+The same gauges, tooltips and notifications are available as a Waybar module,
+in [`waybar/`](waybar/README.md):
+
+```bash
+bash waybar/install.sh --restart
+```
+
 ## Where the numbers come from
 
 Each provider is polled through the same endpoint its own CLI uses, with the

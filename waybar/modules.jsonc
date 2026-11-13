@@ -1,0 +1,27 @@
+// Waybar modules for AI Quota. install.sh adds these for you; this file is for
+// copying by hand into a config that has comments (which install.sh will not edit).
+//
+// "modules-right": ["custom/aiquota-claude", "custom/aiquota-grok", ...],
+{
+  "custom/aiquota-claude": {
+    "exec": "$HOME/.config/waybar/scripts/aiquota-waybar --provider claude",
+    "return-type": "json",
+    "tooltip": true,
+    "restart-interval": 30,
+    "on-click-right": "$HOME/.config/waybar/scripts/aiquota-waybar --refresh claude"
+  },
+  "custom/aiquota-grok": {
+    "exec": "$HOME/.config/waybar/scripts/aiquota-waybar --provider grok",
+    "return-type": "json",
+    "tooltip": true,
+    "restart-interval": 30,
+    "on-click-right": "$HOME/.config/waybar/scripts/aiquota-waybar --refresh grok"
+  },
+  "custom/aiquota-codex": {
+    "exec": "$HOME/.config/waybar/scripts/aiquota-waybar --provider codex",
+    "return-type": "json",
+    "tooltip": true,
+    "restart-interval": 30,
+    "on-click-right": "$HOME/.config/waybar/scripts/aiquota-waybar --refresh codex"
+  }
+}
